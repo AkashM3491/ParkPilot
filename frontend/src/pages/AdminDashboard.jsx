@@ -145,26 +145,51 @@ const AdminDashboard = () => {
       )}
 
       {activeTab === 'users' && (
-      <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
-        <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-xl font-bold">Total Users (Customers)</h2>
+      <div className="space-y-8">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+          <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 className="text-xl font-bold">Franchise Users</h2>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {franchises.length === 0 ? (
+              <div className="p-6 text-slate-500 text-center">No franchise users found.</div>
+            ) : (
+              franchises.map(u => (
+                <div key={u._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900">{u.name}</h3>
+                    <p className="text-slate-500 text-sm">{u.email}</p>
+                  </div>
+                  <div className="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-bold">
+                    FRANCHISE
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-        <div className="divide-y divide-slate-200">
-          {usersList.length === 0 ? (
-            <div className="p-6 text-slate-500 text-center">No users found.</div>
-          ) : (
-            usersList.map(u => (
-              <div key={u._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
-                <div>
-                  <h3 className="font-bold text-lg text-slate-900">{u.name}</h3>
-                  <p className="text-slate-500 text-sm">{u.email}</p>
+
+        <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+          <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 className="text-xl font-bold">Customer Users</h2>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {usersList.length === 0 ? (
+              <div className="p-6 text-slate-500 text-center">No customers found.</div>
+            ) : (
+              usersList.map(u => (
+                <div key={u._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900">{u.name}</h3>
+                    <p className="text-slate-500 text-sm">{u.email}</p>
+                  </div>
+                  <div className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-bold">
+                    CUSTOMER
+                  </div>
                 </div>
-                <div className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-bold">
-                  {u.role.toUpperCase()}
-                </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
       )}
