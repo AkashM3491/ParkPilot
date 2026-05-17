@@ -160,8 +160,17 @@ const AdminDashboard = () => {
                     <h3 className="font-bold text-lg text-slate-900">{u.name}</h3>
                     <p className="text-slate-500 text-sm">{u.email}</p>
                   </div>
-                  <div className="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-bold">
-                    FRANCHISE
+                  <div className="flex items-center space-x-2 mt-4 md:mt-0">
+                    <div className="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-bold">
+                      FRANCHISE
+                    </div>
+                    <div className={`text-xs px-3 py-1 rounded-full font-bold ${
+                      u.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                      u.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {u.status ? u.status.toUpperCase() : 'PENDING'}
+                    </div>
                   </div>
                 </div>
               ))
