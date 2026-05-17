@@ -138,3 +138,29 @@ export const upgradeToFranchise = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    user.name = req.body.name || user.name;
+    if (req.body.profilePic !== undefined) {
+      user.profilePic = req.body.profilePic;
+    }
+
+    await user.save();
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      profilePic: user.profilePic,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

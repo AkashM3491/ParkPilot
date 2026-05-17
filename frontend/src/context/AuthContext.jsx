@@ -62,8 +62,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserProfile = async (profileData) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/auth/profile`, profileData, config);
+      setUser(data);
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || 'Profile update failed' };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, googleLogin, logout, upgradeFranchise }}>
+    <AuthContext.Provider value={{ user, login, register, googleLogin, logout, upgradeFranchise, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

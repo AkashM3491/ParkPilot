@@ -10,6 +10,7 @@ import FranchiseDashboard from './pages/FranchiseDashboard';
 import UserDashboard from './pages/UserDashboard';
 import MapView from './pages/MapView';
 import BecomePartner from './pages/BecomePartner';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/map" element={<MapView />} />
               <Route path="/become-partner" element={<BecomePartner />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </main>
         </div>

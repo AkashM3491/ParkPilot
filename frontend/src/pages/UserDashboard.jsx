@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Clock, MapPin, QrCode, Navigation, CarFront } from 'lucide-react';
+import { Clock, MapPin, QrCode, Navigation, CarFront, ListOrdered, DollarSign, Activity } from 'lucide-react';
 
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -23,6 +23,10 @@ const UserDashboard = () => {
 
   const currentBookings = bookings.filter(b => b.status === 'active');
   const pastBookings = bookings.filter(b => b.status !== 'active');
+
+  const totalSpent = pastBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+  const totalActive = currentBookings.length;
+  const totalCompleted = pastBookings.length;
 
   const renderBookingCard = (booking) => (
     <div key={booking._id} className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden flex flex-col md:flex-row mb-6">
@@ -94,12 +98,18 @@ const UserDashboard = () => {
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">My Bookings</h1>
-        <a href="/map" className="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-colors">
-          Find New Parking
+        <h1 className="text-3xl font-bold">Driver Dashboard</h1>
+        <a href="/map" className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-bold shadow-md transition-colors flex items-center">
+          <MapPin className="w-5 h-5 mr-2" /> Find New Parking
         </a>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <StatCard icon={<Activity />} title="Active Parking" value={totalActive} color="text-blue-600" bg="bg-blue-100" />
+        <StatCard icon={<ListOrdered />} title="Total Completed" value={totalCompleted} color="text-purple-600" bg="bg-purple-100" />
+        <StatCard icon={<DollarSign />} title="Total Spent" value={`₹${totalSpent.toFixed(2)}`} color="text-green-600" bg="bg-green-100" />
       </div>
 
       <div className="mb-12">
@@ -126,5 +136,17 @@ const UserDashboard = () => {
     </div>
   );
 };
+
+const StatCard = ({ icon, title, value, color, bg }) => (
+  <div className="bg-white p-6 rounded-xl shadow-md border border-slate-100 flex items-center space-x-4">
+    <div className={`p-4 rounded-full ${bg} ${color}`}>
+      {React.cloneElement(icon, { className: 'w-8 h-8' })}
+    </div>
+    <div>
+      <p className="text-slate-500 text-sm font-medium">{title}</p>
+      <h3 className="text-3xl font-bold text-slate-900">{value}</h3>
+    </div>
+  </div>
+);
 
 export default UserDashboard;
