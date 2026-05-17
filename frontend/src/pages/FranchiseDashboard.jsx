@@ -138,6 +138,22 @@ const FranchiseDashboard = () => {
     (booking.location_id?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalCarSlots = locations.filter(loc => loc.vehicle_type === 'car').reduce((acc, curr) => acc + curr.total_slots, 0);
+  const totalBikeSlots = locations.filter(loc => loc.vehicle_type === 'bike').reduce((acc, curr) => acc + curr.total_slots, 0);
+
+  const activeCarBookings = activeBookings.filter(b => {
+    const loc = locations.find(l => l._id === (b.location_id?._id || b.location_id));
+    return loc?.vehicle_type === 'car';
+  }).length;
+
+  const activeBikeBookings = activeBookings.filter(b => {
+    const loc = locations.find(l => l._id === (b.location_id?._id || b.location_id));
+    return loc?.vehicle_type === 'bike';
+  }).length;
+
+  const availableCarSlots = totalCarSlots - activeCarBookings;
+  const availableBikeSlots = totalBikeSlots - activeBikeBookings;
+
   if (!stats) return <div className="p-8">Loading...</div>;
 
   return (
@@ -161,9 +177,15 @@ const FranchiseDashboard = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-12">
         <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
           <StatCard icon={<MapPin />} title="Locations" value={stats.totalLocations} />
+        </button>
+        <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<CarFront />} title="Avail. Car Slots" value={availableCarSlots} />
+        </button>
+        <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<Bike />} title="Avail. Bike Slots" value={availableBikeSlots} />
         </button>
         <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
           <StatCard icon={<CarFront />} title="Active Bookings" value={activeBookings.length} />
@@ -171,9 +193,9 @@ const FranchiseDashboard = () => {
         <button onClick={() => setActiveTab('history')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'history' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
           <StatCard icon={<ListOrdered />} title="Booking History" value={history.length} />
         </button>
-        <button onClick={() => setActiveTab('history')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'history' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
-          <StatCard icon={<DollarSign />} title="Earnings" value={`₹${stats.earnings}`} />
-        </button>
+        <div className="block w-full text-left cursor-default">
+          <StatCard icon={<DollarSign />} title="Total Earnings" value={`₹${stats.earnings}`} />
+        </div>
       </div>
 
       {activeTab === 'locations' && showAddForm && (
