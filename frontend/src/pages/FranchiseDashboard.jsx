@@ -181,10 +181,10 @@ const FranchiseDashboard = () => {
         <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
           <StatCard icon={<MapPin />} title="Locations" value={stats.totalLocations} />
         </button>
-        <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+        <button onClick={() => setActiveTab('available-car-slots')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'available-car-slots' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
           <StatCard icon={<CarFront />} title="Avail. Car Slots" value={availableCarSlots} />
         </button>
-        <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+        <button onClick={() => setActiveTab('available-bike-slots')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'available-bike-slots' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
           <StatCard icon={<Bike />} title="Avail. Bike Slots" value={availableBikeSlots} />
         </button>
         <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
@@ -433,6 +433,57 @@ const FranchiseDashboard = () => {
           {filteredLocations.length === 0 && <div className="p-6 text-slate-500 text-center">No locations found.</div>}
         </div>
       </div>
+      )}
+
+      {(activeTab === 'available-car-slots' || activeTab === 'available-bike-slots') && (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24 mb-8">
+          <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">
+                {activeTab === 'available-car-slots' ? 'Available Car Slots' : 'Available Bike Slots'}
+              </h2>
+              <p className="text-sm text-slate-500">View remaining capacity per location</p>
+            </div>
+            <div className="relative w-full md:w-64">
+              <input 
+                type="text" 
+                placeholder="Search locations..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+              />
+              <Search className="w-5 h-5 text-slate-400 absolute left-3 top-2" />
+            </div>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {locations
+              .filter(loc => loc.vehicle_type === (activeTab === 'available-car-slots' ? 'car' : 'bike'))
+              .filter(loc => (loc.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || (loc.address || '').toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(loc => {
+                const activeForLoc = activeBookings.filter(b => (b.location_id?._id || b.location_id) === loc._id).length;
+                const remaining = loc.total_slots - activeForLoc;
+                return (
+                  <div key={loc._id} className="p-6 flex justify-between items-center bg-slate-50 hover:bg-white transition-colors">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        {loc.vehicle_type === 'bike' ? <Bike className="w-5 h-5 text-primary" /> : <CarFront className="w-5 h-5 text-primary" />}
+                        <h3 className="font-semibold text-lg text-slate-900">{loc.name}</h3>
+                      </div>
+                      <p className="text-slate-500 text-sm ml-7">{loc.address}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-bold text-green-600">{remaining}</p>
+                      <p className="text-sm text-slate-500 font-medium">Slots Available</p>
+                      <p className="text-xs text-slate-400 mt-1">Out of {loc.total_slots} total</p>
+                    </div>
+                  </div>
+                );
+              })}
+            {locations.filter(loc => loc.vehicle_type === (activeTab === 'available-car-slots' ? 'car' : 'bike')).length === 0 && (
+              <div className="p-6 text-slate-500 text-center">No locations found for this vehicle type.</div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
