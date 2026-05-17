@@ -7,8 +7,16 @@ const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
   const [franchises, setFranchises] = useState([]);
+  const [usersList, setUsersList] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [revenue, setRevenue] = useState([]);
+  const [activeTab, setActiveTab] = useState('franchises');
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    setSearchQuery('');
+  }, [activeTab]);
 
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -16,8 +24,15 @@ const AdminDashboard = () => {
         const config = { headers: { Authorization: `Bearer ${user.token}` } };
         const { data: statsData } = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`, config);
         const { data: franchisesData } = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/franchises`, config);
+        const { data: usersData } = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, config);
+        const { data: locData } = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/locations`, config);
+        const { data: revData } = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/revenue`, config);
+        
         setStats(statsData);
         setFranchises(franchisesData);
+        setUsersList(usersData);
+        setLocations(locData);
+        setRevenue(revData);
       } catch (error) {
         console.error('Error fetching admin data', error);
         setError('Failed to load admin data or access denied.');
@@ -58,12 +73,21 @@ const AdminDashboard = () => {
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <a href="#" className="block hover:-translate-y-1 transition-transform"><StatCard icon={<Users />} title="Total Users" value={stats.totalUsers} color="text-blue-600" bg="bg-blue-100" /></a>
-        <a href="#franchises" className="block hover:-translate-y-1 transition-transform"><StatCard icon={<Building2 />} title="Franchises" value={stats.totalFranchises} color="text-purple-600" bg="bg-purple-100" /></a>
-        <a href="#" className="block hover:-translate-y-1 transition-transform"><StatCard icon={<MapPin />} title="Locations" value={stats.totalLocations} color="text-orange-600" bg="bg-orange-100" /></a>
-        <a href="#" className="block hover:-translate-y-1 transition-transform"><StatCard icon={<CreditCard />} title="Revenue" value={`₹${stats.totalRevenue}`} color="text-green-600" bg="bg-green-100" /></a>
+        <button onClick={() => setActiveTab('users')} className={`block hover:-translate-y-1 transition-transform w-full text-left ${activeTab === 'users' ? 'ring-2 ring-blue-600 rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<Users />} title="Total Users" value={stats.totalUsers} color="text-blue-600" bg="bg-blue-100" />
+        </button>
+        <button onClick={() => setActiveTab('franchises')} className={`block hover:-translate-y-1 transition-transform w-full text-left ${activeTab === 'franchises' ? 'ring-2 ring-purple-600 rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<Building2 />} title="Franchises" value={stats.totalFranchises} color="text-purple-600" bg="bg-purple-100" />
+        </button>
+        <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-transform w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-orange-600 rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<MapPin />} title="Locations" value={stats.totalLocations} color="text-orange-600" bg="bg-orange-100" />
+        </button>
+        <button onClick={() => setActiveTab('revenue')} className={`block hover:-translate-y-1 transition-transform w-full text-left ${activeTab === 'revenue' ? 'ring-2 ring-green-600 rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<CreditCard />} title="Revenue" value={`₹${stats.totalRevenue}`} color="text-green-600" bg="bg-green-100" />
+        </button>
       </div>
 
+      {activeTab === 'franchises' && (
       <div id="franchises" className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
         <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-xl font-bold">Franchise Approvals</h2>
@@ -118,6 +142,85 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
+      )}
+
+      {activeTab === 'users' && (
+      <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 className="text-xl font-bold">Total Users (Customers)</h2>
+        </div>
+        <div className="divide-y divide-slate-200">
+          {usersList.length === 0 ? (
+            <div className="p-6 text-slate-500 text-center">No users found.</div>
+          ) : (
+            usersList.map(u => (
+              <div key={u._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900">{u.name}</h3>
+                  <p className="text-slate-500 text-sm">{u.email}</p>
+                </div>
+                <div className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-bold">
+                  {u.role.toUpperCase()}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+      )}
+
+      {activeTab === 'locations' && (
+      <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 className="text-xl font-bold">All Parking Locations</h2>
+        </div>
+        <div className="divide-y divide-slate-200">
+          {locations.length === 0 ? (
+            <div className="p-6 text-slate-500 text-center">No locations found.</div>
+          ) : (
+            locations.map(loc => (
+              <div key={loc._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900">{loc.name} <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded ml-2 uppercase">{loc.vehicle_type}</span></h3>
+                  <p className="text-slate-500 text-sm">{loc.address}</p>
+                  <p className="text-xs text-slate-400 mt-1">Owned by: {loc.owner_id?.name || 'Unknown'} ({loc.owner_id?.email || 'N/A'})</p>
+                </div>
+                <div className="text-right mt-4 md:mt-0">
+                  <p className="text-lg font-bold text-primary">₹{loc.price_per_hour}/hr</p>
+                  <p className="text-sm text-slate-500 font-medium">{loc.total_slots} Total Slots</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+      )}
+
+      {activeTab === 'revenue' && (
+      <div className="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div className="px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 className="text-xl font-bold">Revenue by Franchise</h2>
+        </div>
+        <div className="divide-y divide-slate-200">
+          {revenue.length === 0 ? (
+            <div className="p-6 text-slate-500 text-center">No revenue data found.</div>
+          ) : (
+            revenue.map(rev => (
+              <div key={rev._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900">{rev.name}</h3>
+                  <p className="text-slate-500 text-sm">{rev.email}</p>
+                </div>
+                <div className="text-right mt-4 md:mt-0">
+                  <p className="text-sm text-slate-500 font-medium">Total Generated</p>
+                  <p className="text-2xl font-bold text-green-600">₹{rev.totalRevenue.toFixed(2)}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+      )}
     </div>
   );
 };

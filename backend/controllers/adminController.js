@@ -62,3 +62,40 @@ export const getDashboardStats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAllLocations = async (req, res) => {
+  try {
+    const locations = await ParkingLocation.find().populate('owner_id', 'name email');
+    res.json(locations);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getFranchiseRevenue = async (req, res) => {
+  try {
+    const franchises = await User.find({ role: 'franchise' });
+    const bookings = await Booking.find({ status: 'completed' }).populate('location_id');
+    
+    const revenueData = franchises.map(franchise => {
+      // Find all bookings for locations owned by this franchise
+      const franchiseBookings = bookings.filter(b => 
+        b.location_id && String(b.location_id.owner_id) === String(franchise._id)
+      );
+      
+      const totalRevenue = franchiseBookings.reduce((sum, b) => sum + b.total_price, 0);
+      return {
+        _id: franchise._id,
+        name: franchise.name,
+        email: franchise.email,
+        totalRevenue
+      };
+    });
+    
+    // Sort by highest revenue
+    revenueData.sort((a, b) => b.totalRevenue - a.totalRevenue);
+    res.json(revenueData);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
