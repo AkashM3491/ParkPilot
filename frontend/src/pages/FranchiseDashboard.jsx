@@ -162,10 +162,18 @@ const FranchiseDashboard = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}><StatCard icon={<MapPin />} title="Locations" value={stats.totalLocations} /></button>
-        <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}><StatCard icon={<ListOrdered />} title="Total Slots" value={stats.totalSlots} /></button>
-        <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}><StatCard icon={<ListOrdered />} title="Total Bookings" value={stats.totalBookings} /></button>
-        <button onClick={() => setActiveTab('history')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'history' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}><StatCard icon={<DollarSign />} title="Earnings" value={`₹${stats.earnings}`} /></button>
+        <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<MapPin />} title="Locations" value={stats.totalLocations} />
+        </button>
+        <button onClick={() => setActiveTab('active-bookings')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'active-bookings' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<CarFront />} title="Active Bookings" value={activeBookings.length} />
+        </button>
+        <button onClick={() => setActiveTab('history')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'history' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<ListOrdered />} title="Booking History" value={history.length} />
+        </button>
+        <button onClick={() => setActiveTab('history')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'history' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
+          <StatCard icon={<DollarSign />} title="Earnings" value={`₹${stats.earnings}`} />
+        </button>
       </div>
 
       {activeTab === 'locations' && showAddForm && (
