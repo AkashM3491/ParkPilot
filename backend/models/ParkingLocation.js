@@ -38,6 +38,19 @@ const parkingLocationSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    id_proof: {
+      type: String, // Store base64 or path
+      required: true,
+    },
+    user_photo: {
+      type: String, // Store base64 or path
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
   },
   {
     timestamps: true,

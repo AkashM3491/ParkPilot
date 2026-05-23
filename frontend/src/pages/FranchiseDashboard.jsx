@@ -35,6 +35,8 @@ const FranchiseDashboard = () => {
   const [slots, setSlots] = useState('');
   const [vehicleType, setVehicleType] = useState('car');
   const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [idProof, setIdProof] = useState(null);
+  const [userPhoto, setUserPhoto] = useState(null);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -107,15 +109,47 @@ const FranchiseDashboard = () => {
     if (user?.role === 'franchise') fetchDashboard();
   }, [user]);
 
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const handleAddLocation = async (e) => {
     e.preventDefault();
+    if (!idProof || !userPhoto) {
+      alert("Please upload both ID Proof and User Photo.");
+      return;
+    }
+
+    const confirmSubmit = window.confirm("Are you sure you want to submit this new location? It will be placed under 'Pending Approval' until an admin reviews your documents. You cannot receive bookings for this location until it is approved.");
+    if (!confirmSubmit) return;
+
     try {
+      const idProofBase64 = await fileToBase64(idProof);
+      const userPhotoBase64 = await fileToBase64(userPhoto);
+
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       await axios.post(`${import.meta.env.VITE_API_URL}/api/franchise/locations`, {
-        name, address, lat: Number(lat), lng: Number(lng), price_per_hour: Number(price), total_slots: Number(slots), vehicle_type: vehicleType
+        name, address, lat: Number(lat), lng: Number(lng), price_per_hour: Number(price), total_slots: Number(slots), vehicle_type: vehicleType,
+        id_proof: idProofBase64,
+        user_photo: userPhotoBase64
       }, config);
       setShowAddForm(false);
       fetchDashboard();
+      
+      // Reset form
+      setName('');
+      setAddress('');
+      setLat('');
+      setLng('');
+      setPrice('');
+      setSlots('');
+      setIdProof(null);
+      setUserPhoto(null);
     } catch (error) {
       alert(error.response?.data?.message || 'Error adding location');
     }
@@ -160,7 +194,7 @@ const FranchiseDashboard = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Franchise Dashboard</h1>
-        {user.status === 'approved' && (
+        {activeTab === 'locations' && (
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
             className="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md transition-colors"
@@ -169,13 +203,6 @@ const FranchiseDashboard = () => {
           </button>
         )}
       </div>
-
-      {user.status !== 'approved' && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-8" role="alert">
-          <p className="font-bold">Account Pending</p>
-          <p>Your account is waiting for admin approval. You cannot add locations until approved.</p>
-        </div>
-      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-12">
         <button onClick={() => setActiveTab('locations')} className={`block hover:-translate-y-1 transition-all w-full text-left ${activeTab === 'locations' ? 'ring-2 ring-primary rounded-xl shadow-lg scale-105' : ''}`}>
@@ -200,7 +227,10 @@ const FranchiseDashboard = () => {
 
       {activeTab === 'locations' && showAddForm && (
         <div className="bg-white p-6 rounded-xl shadow-md mb-8 border border-slate-200">
-          <h2 className="text-xl font-bold mb-4">Add New Parking Location</h2>
+          <h2 className="text-xl font-bold mb-2">Add New Parking Location</h2>
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-3 mb-6 rounded text-sm font-medium">
+            ⚠️ Note: Every new location must be approved by an Admin. It will be marked as "Pending Approval" and will not be visible to users until your Aadhar/PAN and Photo are verified.
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <form onSubmit={handleAddLocation} className="space-y-4">
@@ -231,6 +261,16 @@ const FranchiseDashboard = () => {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Total Slots</label>
                   <input type="number" required className="w-full border p-2 rounded focus:ring-primary focus:border-primary" value={slots} onChange={e => setSlots(e.target.value)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Aadhar or PAN Proof</label>
+                  <input type="file" accept="image/*,.pdf" required className="w-full border p-1 rounded focus:ring-primary focus:border-primary" onChange={e => setIdProof(e.target.files[0])} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Franchise User Photo</label>
+                  <input type="file" accept="image/*" required className="w-full border p-1 rounded focus:ring-primary focus:border-primary" onChange={e => setUserPhoto(e.target.files[0])} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -421,6 +461,9 @@ const FranchiseDashboard = () => {
                 <div className="flex items-center space-x-2">
                   {loc.vehicle_type === 'bike' ? <Bike className="w-5 h-5 text-primary" /> : <CarFront className="w-5 h-5 text-primary" />}
                   <h3 className="font-semibold text-lg text-slate-900">{loc.name}</h3>
+                  {loc.status === 'pending' && <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">Pending Approval</span>}
+                  {loc.status === 'approved' && <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold">Approved</span>}
+                  {loc.status === 'rejected' && <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-bold">Rejected</span>}
                 </div>
                 <p className="text-slate-500 text-sm ml-7">{loc.address}</p>
               </div>

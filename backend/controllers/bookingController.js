@@ -5,7 +5,7 @@ import crypto from 'crypto';
 
 export const getNearbyParking = async (req, res) => {
   try {
-    const locations = await ParkingLocation.find().lean();
+    const locations = await ParkingLocation.find({ status: 'approved' }).lean();
     
     const locationsWithSlots = await Promise.all(locations.map(async (loc) => {
       const available_slots = await ParkingSlot.countDocuments({ location_id: loc._id, status: 'available' });

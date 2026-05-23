@@ -4,12 +4,7 @@ import Booking from '../models/Booking.js';
 
 export const addLocation = async (req, res) => {
   try {
-    const { name, address, lat, lng, price_per_hour, total_slots, vehicle_type } = req.body;
-
-    // Must be approved franchise
-    if (req.user.status !== 'approved') {
-      return res.status(403).json({ message: 'Franchise account not approved yet' });
-    }
+    const { name, address, lat, lng, price_per_hour, total_slots, vehicle_type, id_proof, user_photo } = req.body;
 
     const location = await ParkingLocation.create({
       owner_id: req.user._id,
@@ -19,6 +14,8 @@ export const addLocation = async (req, res) => {
       vehicle_type: vehicle_type || 'car',
       price_per_hour,
       total_slots,
+      id_proof,
+      user_photo
     });
 
     // Automatically create slots
