@@ -6,7 +6,8 @@ import {
   approveFranchise,
   getDashboardStats,
   getAllLocations,
-  getFranchiseRevenue
+  getFranchiseRevenue,
+  updateLocationStatus
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 router.route('/users').get(protect, admin, getUsers);
 router.route('/franchises').get(protect, admin, getFranchises);
 router.route('/franchises/:id/approve').put(protect, admin, approveFranchise);
+router.route('/locations/:id/status').put(protect, admin, updateLocationStatus);
 router.route('/dashboard').get(protect, admin, getDashboardStats);
 router.route('/locations').get(protect, admin, getAllLocations);
 router.route('/revenue').get(protect, admin, getFranchiseRevenue);

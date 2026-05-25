@@ -57,6 +57,17 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleApproveLocation = async (id, status) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/admin/locations/${id}/status`, { status }, config);
+      setLocations(locations.map(loc => loc._id === id ? { ...loc, status } : loc));
+    } catch (error) {
+      console.error('Error updating location status', error);
+      alert('Failed to update location status');
+    }
+  };
+
   const filteredFranchises = franchises.filter(f => 
     (f.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (f.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -214,14 +225,32 @@ const AdminDashboard = () => {
           ) : (
             locations.map(loc => (
               <div key={loc._id} className="p-6 flex flex-col md:flex-row justify-between items-center hover:bg-slate-50 transition-colors">
-                <div>
-                  <h3 className="font-bold text-lg text-slate-900">{loc.name} <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded ml-2 uppercase">{loc.vehicle_type}</span></h3>
+                <div className="flex-1">
+                  <div className="flex items-center">
+                    <h3 className="font-bold text-lg text-slate-900">{loc.name}</h3>
+                    <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded ml-2 uppercase font-bold">{loc.vehicle_type}</span>
+                    <span className={`text-xs px-2 py-1 rounded ml-2 uppercase font-bold ${
+                      loc.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                      loc.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {loc.status || 'pending'}
+                    </span>
+                  </div>
                   <p className="text-slate-500 text-sm">{loc.address}</p>
                   <p className="text-xs text-slate-400 mt-1">Owned by: {loc.owner_id?.name || 'Unknown'} ({loc.owner_id?.email || 'N/A'})</p>
                 </div>
-                <div className="text-right mt-4 md:mt-0">
-                  <p className="text-lg font-bold text-primary">₹{loc.price_per_hour}/hr</p>
-                  <p className="text-sm text-slate-500 font-medium">{loc.total_slots} Total Slots</p>
+                <div className="flex flex-col md:items-end justify-center mt-4 md:mt-0 gap-2">
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-primary">₹{loc.price_per_hour}/hr</p>
+                    <p className="text-sm text-slate-500 font-medium">{loc.total_slots} Total Slots</p>
+                  </div>
+                  {(!loc.status || loc.status === 'pending') && (
+                    <div className="flex space-x-2 mt-2">
+                      <button onClick={() => handleApproveLocation(loc._id, 'approved')} className="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow transition-colors">Approve</button>
+                      <button onClick={() => handleApproveLocation(loc._id, 'rejected')} className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow transition-colors">Reject</button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
