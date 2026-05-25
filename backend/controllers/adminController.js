@@ -109,11 +109,13 @@ export const updateLocationStatus = async (req, res) => {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
-    const location = await ParkingLocation.findById(locationId);
+    const location = await ParkingLocation.findByIdAndUpdate(
+      locationId,
+      { status },
+      { new: true }
+    );
 
     if (location) {
-      location.status = status;
-      await location.save();
       res.json({ message: `Location ${status} successfully`, location });
     } else {
       res.status(404).json({ message: 'Location not found' });
