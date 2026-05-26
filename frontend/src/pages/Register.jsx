@@ -9,6 +9,11 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState('user');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [aadhar, setAadhar] = useState('');
+  const [pan, setPan] = useState('');
+  const [franchiseLoc, setFranchiseLoc] = useState('');
   const [error, setError] = useState('');
   
   const { register, googleLogin } = useContext(AuthContext);
@@ -16,7 +21,8 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await register(name, email, password, 'user');
+    const extraData = role === 'franchise' ? { phoneNumber, aadharNumber: aadhar, panNumber: pan, franchiseLocation: franchiseLoc } : {};
+    const res = await register(name, email, password, role, extraData);
     if (res.success) {
       navigate('/');
     } else {
@@ -38,6 +44,24 @@ const Register = () => {
       <div className="glass-panel p-8 rounded-2xl w-full max-w-md">
         <h2 className="text-3xl font-bold text-center mb-6">Create Account</h2>
         {error && <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm">{error}</div>}
+        
+        <div className="flex bg-slate-100 p-1 rounded-lg mb-6">
+          <button 
+            type="button"
+            className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${role === 'user' ? 'bg-white text-primary shadow' : 'text-slate-500'}`}
+            onClick={() => setRole('user')}
+          >
+            Customer
+          </button>
+          <button 
+            type="button"
+            className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${role === 'franchise' ? 'bg-white text-primary shadow' : 'text-slate-500'}`}
+            onClick={() => setRole('franchise')}
+          >
+            Franchise Partner
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
@@ -84,6 +108,29 @@ const Register = () => {
               Must be at least 8 characters and contain 1 uppercase, 1 lowercase, 1 number, and 1 special character (!@#$%^&*). Cannot contain your email.
             </p>
           </div>
+
+          {role === 'franchise' && (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-4 mt-2">
+              <h3 className="text-sm font-bold text-blue-900 border-b border-blue-200 pb-2">Franchise Details</h3>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                <input type="tel" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required maxLength="10" placeholder="10-digit number" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Aadhar Number</label>
+                <input type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" value={aadhar} onChange={(e) => setAadhar(e.target.value)} required maxLength="12" placeholder="12-digit Aadhar" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">PAN Number</label>
+                <input type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm uppercase" value={pan} onChange={(e) => setPan(e.target.value.toUpperCase())} required maxLength="10" placeholder="10-digit PAN" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Proposed Location</label>
+                <input type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" value={franchiseLoc} onChange={(e) => setFranchiseLoc(e.target.value)} required placeholder="e.g. Mumbai, Andheri" />
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-md mt-4"

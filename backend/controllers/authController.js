@@ -28,7 +28,7 @@ const isStrongPassword = (password, email) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, aadharNumber, panNumber, franchiseLocation } = req.body;
+    const { name, email, password, role, phoneNumber, aadharNumber, panNumber, franchiseLocation } = req.body;
 
     const passCheck = isStrongPassword(password, email);
     if (!passCheck.valid) {
@@ -46,6 +46,7 @@ export const registerUser = async (req, res) => {
       password,
       role: role || 'user',
       status: role === 'franchise' ? 'pending' : 'approved',
+      phoneNumber,
       aadharNumber,
       panNumber,
       franchiseLocation,
