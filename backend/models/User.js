@@ -26,6 +26,10 @@ const userSchema = mongoose.Schema(
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending', // mostly for franchise users
     },
+    phoneNumber: {
+      type: String,
+      required: false,
+    },
     aadharNumber: {
       type: String,
       required: false,

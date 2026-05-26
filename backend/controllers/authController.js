@@ -137,10 +137,11 @@ export const upgradeToFranchise = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
     
-    const { aadharNumber, panNumber, franchiseLocation } = req.body;
+    const { aadharNumber, panNumber, franchiseLocation, phoneNumber } = req.body;
     
     user.role = 'franchise';
     user.status = 'pending';
+    user.phoneNumber = phoneNumber;
     user.aadharNumber = aadharNumber;
     user.panNumber = panNumber;
     user.franchiseLocation = franchiseLocation;

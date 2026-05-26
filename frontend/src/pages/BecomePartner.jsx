@@ -9,6 +9,7 @@ const BecomePartner = () => {
   const [aadhar, setAadhar] = useState('');
   const [pan, setPan] = useState('');
   const [franchiseLoc, setFranchiseLoc] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,7 @@ const BecomePartner = () => {
     }
     
     setLoading(true);
-    const res = await upgradeFranchise({ aadharNumber: aadhar, panNumber: pan, franchiseLocation: franchiseLoc });
+    const res = await upgradeFranchise({ aadharNumber: aadhar, panNumber: pan, franchiseLocation: franchiseLoc, phoneNumber });
     setLoading(false);
     
     if (res.success) {
@@ -53,6 +54,11 @@ const BecomePartner = () => {
             <h3 className="font-bold text-slate-800 text-md border-b border-blue-200 pb-2 mb-4">Verification Details</h3>
             
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Phone Number</label>
+                <input type="tel" className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required placeholder="10-digit Phone Number" maxLength="10" />
+              </div>
+              
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Aadhar Card Number</label>
                 <input type="text" className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none" value={aadhar} onChange={(e) => setAadhar(e.target.value)} required placeholder="12-digit Aadhar Number" maxLength="12" />
