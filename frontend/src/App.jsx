@@ -11,6 +11,7 @@ import UserDashboard from './pages/UserDashboard';
 import MapView from './pages/MapView';
 import BecomePartner from './pages/BecomePartner';
 import Profile from './pages/Profile';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/franchise" element={<FranchiseDashboard />} />
