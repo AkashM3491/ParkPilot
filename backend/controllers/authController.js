@@ -10,9 +10,30 @@ const generateToken = (id) => {
   });
 };
 
+const isStrongPassword = (password, email) => {
+  const strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})");
+  if (!strongRegex.test(password)) {
+    return { valid: false, message: 'Password must be at least 8 characters long and contain an uppercase letter, lowercase letter, number, and special character.' };
+  }
+  
+  if (email) {
+    const emailPrefix = email.split('@')[0].toLowerCase();
+    if (password.toLowerCase().includes(emailPrefix) && emailPrefix.length > 2) {
+      return { valid: false, message: 'Password cannot contain your email username.' };
+    }
+  }
+
+  return { valid: true };
+};
+
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role, aadharNumber, panNumber, franchiseLocation } = req.body;
+
+    const passCheck = isStrongPassword(password, email);
+    if (!passCheck.valid) {
+      return res.status(400).json({ message: passCheck.message });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -171,6 +192,11 @@ export const resetPassword = async (req, res) => {
     
     if (!email || !newPassword) {
       return res.status(400).json({ message: 'Email and new password are required' });
+    }
+
+    const passCheck = isStrongPassword(newPassword, email);
+    if (!passCheck.valid) {
+      return res.status(400).json({ message: passCheck.message });
     }
 
     const user = await User.findOne({ email });

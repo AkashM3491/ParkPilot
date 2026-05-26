@@ -75,6 +75,9 @@ const ForgotPassword = () => {
               required
               minLength={6}
             />
+            <p className="text-xs text-slate-500 mt-2">
+              Must be at least 8 characters and contain 1 uppercase, 1 lowercase, 1 number, and 1 special character (!@#$%^&*). Cannot contain your email username.
+            </p>
           </div>
           <button
             type="submit"
