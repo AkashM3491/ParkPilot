@@ -123,7 +123,11 @@ const AdminDashboard = () => {
                   <h3 className="font-bold text-xl text-slate-900">{franchise.name}</h3>
                   <p className="text-slate-500 text-sm mb-4">{franchise.email}</p>
                   
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm text-sm grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm text-sm grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                      <span className="font-bold text-slate-500 block text-xs uppercase mb-1">Phone Number</span>
+                      <span className="text-slate-900 font-mono bg-slate-100 px-2 py-1 rounded">{franchise.phoneNumber || 'Not provided'}</span>
+                    </div>
                     <div>
                       <span className="font-bold text-slate-500 block text-xs uppercase mb-1">Aadhar Number</span>
                       <span className="text-slate-900 font-mono bg-slate-100 px-2 py-1 rounded">{franchise.aadharNumber || 'Not provided'}</span>
